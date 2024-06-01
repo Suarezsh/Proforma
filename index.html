@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proforma de Cotización- Sfysh</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            margin: 0;
+            padding: 0;
+
+        }
+        #portada{
+            background: linear-gradient(to right, #ff22f8, #000000);
+            color: rgb(246, 246, 246);
+        }
+        #logo{
+            padding: 5px;
+            border-radius: 50%;
+        }
+        #btnajustes{
+            position: fixed;
+            top: 24px;
+
+        }
+        :root {
+            --color-tabla-cabecera: #a142b9;
+            --color-tabla-cuerpo: #ffe6e6;
+        }
+        
+        
+
+    </style>
+    
+    
+    
+</head>
+<body>
+    <div class="container mt-4">
+        <div id="portada" class="text-center mb-4">
+            <img id="logo" src="logo.jpeg" style="width: 100px;">
+            <h2 id="storeName">Sfysh</h2>
+            <p id="storePhone">+51929331606</p>
+            <p id="storeAddress">Arequipa - Perú</p>
+            <p id="vendorName">Suarez</p>
+        </div>
+        
+            <button id="btnajustes" class="btn btn-primary btn-icon" data-toggle="modal" data-target="#settingsModal">
+                <i class="fas fa-cogs"></i>
+            </button>
+        
+        <div class="mb-4">
+            <form id="proformaForm">
+                <div class="form-group">
+                    <label for="nombreCliente">Nombre del Cliente</label>
+                    <input type="text" class="form-control" id="nombreCliente" required>
+                </div>
+                <div class="form-group">
+                    <label for="numeroWhatsApp">Número de WhatsApp del Cliente</label>
+                    <input type="text" class="form-control" id="numeroWhatsApp" required>
+                </div>
+                <div class="table-responsive">
+                    <table class="table" id="itemsTable">
+                        <thead>
+                            <tr>
+                                <th>Cantidad</th>
+                                <th>Descripción</th>
+                                <th>Precio Unitario (S/)</th>
+                                <th>Precio Total (S/)</th>
+                                <th>Imagen</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <button type="button" class="btn btn-primary mb-2 btn-icon" id="agregarItemBtn">
+                    <i class="fas fa-plus"></i> Agregar Ítem
+                </button>
+                <div class="form-group">
+                    <label for="descuento">Descuento (S/)</label>
+                    <input type="number" class="form-control" id="descuento" value="0">
+                </div>
+                <div class="mb-2">
+                    <strong>Suma Total: S/</strong><span id="sumaTotal">0.00</span>
+                </div>
+                <div class="mb-2">
+                    <strong>Precio Final: S/</strong><span id="precioFinal">0.00</span>
+                </div>
+                <button type="button" class="btn btn-success btn-icon" id="generarPDFBtn">
+                    <i class="fas fa-file-pdf"></i> Generar PDF
+                </button>
+                <button type="button" class="btn btn-info btn-icon" id="enviarWhatsAppBtn">
+                    <i class="fab fa-whatsapp"></i> Enviar por WhatsApp
+                </button>
+                <button type="button" class="btn btn-secondary btn-icon" id="reiniciarTablaBtn">
+                    <i class="fas fa-redo"></i> Reiniciar Tabla
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="settingsModalLabel">Ajustes</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form id="settingsForm">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="logoInput">Logo de la Empresa</label>
+                            <input type="file" class="form-control-file" id="logoInput">
+                        </div>
+                        <div class="form-group">
+                            <label for="storeNameInput">Nombre de la Tienda</label>
+                            <input type="text" class="form-control" id="storeNameInput">
+                        </div>
+                        <div class="form-group">
+                            <label for="storePhoneInput">Número de Teléfono</label>
+                            <input type="text" class="form-control" id="storePhoneInput">
+                        </div>
+                        <div class="form-group">
+                            <label for="storeAddressInput">Dirección</label>
+                            <input type="text" class="form-control" id="storeAddressInput">
+                        </div>
+                        <div class="form-group">
+                            <label for="vendorNameInput">Nombre del Vendedor</label>
+                            <input type="text" class="form-control" id="vendorNameInput">
+                        </div>
+                        <div class="form-group">
+                            <label for="colorPortada">Color de la Portada</label>
+                            <input type="color" class="form-control" id="colorPortada">
+                        </div>
+                        <div class="form-group">
+                            <label for="colorTablaCabecera">Color de Cabecera de Tabla en PDF</label>
+                            <input type="color" class="form-control" id="colorTablaCabecera">
+                        </div>
+                        
+                        
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                            <i class="fas fa-times"></i> Cerrar
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Guardar Cambios
+                        </button>
+                        <button type="button" class="btn btn-danger" id="resetSettings">
+                            <i class="fas fa-undo"></i> Reiniciar Ajustes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const cargarLogo = () => {
+                const logoData = localStorage.getItem('logoData');
+                const logoImg = document.getElementById('logo');
+                
+                if (logoData) {
+                    logoImg.src = logoData;
+                } else {
+                    logoImg.src = 'logo.jpeg';
+                }
+            };
+
+            const guardarLogo = (logoData) => {
+                localStorage.setItem('logoData', logoData);
+            };
+
+            const handleLogoChange = (event) => {
+                const file = event.target.files[0];
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    const logoData = e.target.result;
+                    guardarLogo(logoData);
+                    cargarLogo();
+                };
+
+                reader.readAsDataURL(file);
+            };
+
+            const settingsForm = document.getElementById('settingsForm');
+            settingsForm.addEventListener('submit', (event) => {
+                event.preventDefault();
+                $('#settingsModal').modal('hide');
+            });
+            document.getElementById('logoInput').addEventListener('change', handleLogoChange);
+            cargarLogo();
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const agregarItemBtn = document.getElementById('agregarItemBtn');
+            const itemsTable = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
+            const descuentoInput = document.getElementById('descuento');
+            const sumaTotalSpan = document.getElementById('sumaTotal');
+            const precioFinalSpan = document.getElementById('precioFinal');
+            const enviarWhatsAppBtn = document.getElementById('enviarWhatsAppBtn');
+            const reiniciarTablaBtn = document.getElementById('reiniciarTablaBtn');
+            const settingsForm = document.getElementById('settingsForm');
+            const storeName = document.getElementById('storeName');
+            const storePhone = document.getElementById('storePhone');
+            const storeAddress = document.getElementById('storeAddress');
+            const vendorName = document.getElementById('vendorName');
+
+            const actualizarTotales = () => {
+                let sumaTotal = 0;
+                document.querySelectorAll('.precioTotal').forEach(element => {
+                    sumaTotal += parseFloat(element.value || 0);
+                });
+                sumaTotalSpan.textContent = sumaTotal.toFixed(2);
+                const descuento = parseFloat(descuentoInput.value || 0);
+                const precioFinal = (sumaTotal - descuento).toFixed(2);
+                precioFinalSpan.textContent = precioFinal;
+            };
+
+            const agregarItem = () => {
+                const row = itemsTable.insertRow();
+                row.classList.add('item-row');
+
+                const cellCantidad = row.insertCell(0);
+                const cantidadInput = document.createElement('input');
+                cantidadInput.type = 'number';
+                cantidadInput.classList.add('form-control', 'cantidad');
+                cantidadInput.addEventListener('input', actualizarPrecioTotal);
+                cellCantidad.appendChild(cantidadInput);
+
+                const cellDescripcion = row.insertCell(1);
+                const descripcionInput = document.createElement('input');
+                descripcionInput.type = 'text';
+                descripcionInput.classList.add('form-control', 'descripcion');
+                cellDescripcion.appendChild(descripcionInput);
+
+                const cellPrecioUnitario = row.insertCell(2);
+                const precioUnitarioInput = document.createElement('input');
+                precioUnitarioInput.type = 'number';
+                precioUnitarioInput.classList.add('form-control', 'precioUnitario');
+                precioUnitarioInput.addEventListener('input', actualizarPrecioTotal);
+                cellPrecioUnitario.appendChild(precioUnitarioInput);
+
+                const cellPrecioTotal = row.insertCell(3);
+                const precioTotalInput = document.createElement('input');
+                precioTotalInput.type = 'number';
+                precioTotalInput.classList.add('form-control', 'precioTotal');
+                precioTotalInput.readOnly = true;
+                cellPrecioTotal.appendChild(precioTotalInput);
+
+                const cellImagen = row.insertCell(4);
+                const imagenInput = document.createElement('input');
+                imagenInput.type = 'file';
+                imagenInput.classList.add('form-control-file', 'imagen');
+                cellImagen.appendChild(imagenInput);
+
+                const cellAcciones = row.insertCell(5);
+                const eliminarBtn = document.createElement('button');
+                eliminarBtn.classList.add('btn', 'btn-danger');
+                eliminarBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
+                eliminarBtn.addEventListener('click', () => {
+                    itemsTable.deleteRow(row.rowIndex - 1);
+                    actualizarTotales();
+                });
+                cellAcciones.appendChild(eliminarBtn);
+            };
+
+            const actualizarPrecioTotal = (event) => {
+                const row = event.target.closest('.item-row');
+                const cantidad = parseFloat(row.querySelector('.cantidad').value || 0);
+                const precioUnitario = parseFloat(row.querySelector('.precioUnitario').value || 0);
+                const precioTotal = (cantidad * precioUnitario).toFixed(2);
+                row.querySelector('.precioTotal').value = precioTotal;
+                actualizarTotales();
+            };
+
+            const generarPDF = () => {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                const colorTablaCabecera = document.getElementById('colorTablaCabecera').value;
+            
+                doc.setFontSize(18);
+                const storeNameText = storeName.textContent;
+                const storeNameWidth = doc.getTextWidth(storeNameText);
+                const pageWidth = doc.internal.pageSize.getWidth();
+                doc.text(storeNameText, pageWidth / 2, 20, { align: 'center' });
+                doc.setLineWidth(0.5);
+                doc.line((pageWidth - storeNameWidth) / 2, 22, (pageWidth + storeNameWidth) / 2, 22);
+            
+                doc.setFontSize(12);
+            
+                const datosTabla = [
+                    ['Teléfono:', storePhone.textContent, 'Dirección:', storeAddress.textContent],
+                    ['Vendedor:', vendorName.textContent, '', ''],
+                    ['Nombre del Cliente:', document.getElementById('nombreCliente').value, 'WhatsApp del Cliente:', document.getElementById('numeroWhatsApp').value]
+                ];
+            
+                doc.autoTable({
+                    startY: 30,
+                    body: datosTabla,
+                    headStyles: {
+                        fillColor: [colorTablaCabecera],
+                        textColor: [255, 255, 255]
+                    },
+                    bodyStyles: {
+                        alternateRowStyles: {
+                            fillColor: ['#ffffff', '#ffffff']
+                        }
+                    }
+                });
+            
+                doc.setLineWidth(0.5);
+                doc.line(10, 112, pageWidth - 10, 112);
+            
+                const body = Array.from(itemsTable.rows).map(row => [
+                    row.querySelector('.cantidad').value,
+                    row.querySelector('.descripcion').value,
+                    row.querySelector('.precioUnitario').value,
+                    row.querySelector('.precioTotal').value
+                ]);
+            
+                const sumaTotal = sumaTotalSpan.textContent;
+                const descuento = descuentoInput.value;
+                const precioFinal = precioFinalSpan.textContent;
+            
+                body.push(['', '', 'Suma Total', `S/ ${sumaTotal}`]);
+                if (parseFloat(descuento) !== 0) {
+                    body.push(['', '', 'Descuento', `S/ ${descuento}`]);
+                }
+                body.push(['', '', 'Precio Final', `S/ ${precioFinal}`]);
+            
+                doc.autoTable({
+                    startY: 60,
+                    head: [['Cantidad', 'Descripción', 'Precio Unitario (S/)', 'Precio Total (S/)']],
+                    body: body,
+                    columnStyles: {
+                        0: { cellWidth: 20 },
+                        1: { cellWidth: 90 },
+                        2: { cellWidth: 40 },
+                        3: { cellWidth: 40 }
+                    },
+                    headStyles: {
+                        fillColor: [colorTablaCabecera],
+                        textColor: [255, 255, 255]
+                    },
+                    bodyStyles: {
+                        alternateRowStyles: {
+                            fillColor: [getComputedStyle(document.documentElement).getPropertyValue('--color-tabla-cuerpo').trim(), '#ffffff']
+                        }
+                    }
+                });
+            
+                const rowsWithImages = Array.from(itemsTable.rows).filter(row => row.querySelector('.imagen').files.length > 0);
+            
+                if (rowsWithImages.length > 0) {
+                    doc.addPage();
+                    let yPosition = 20;
+                    const imgWidth = 90;
+                    const imgHeight = 90;
+            
+                    rowsWithImages.forEach((row, index) => {
+                        const descripcion = row.querySelector('.descripcion').value;
+                        const file = row.querySelector('.imagen').files[0];
+                        const reader = new FileReader();
+            
+                        reader.onload = function (e) {
+                            const imgData = e.target.result;
+            
+                            if (yPosition + imgHeight > doc.internal.pageSize.height - 20) {
+                                doc.addPage();
+                                yPosition = 20;
+                            }
+            
+                            doc.text(`Imagen de ${descripcion}`, 10, yPosition);
+                            doc.addImage(imgData, 'JPEG', 10, yPosition + 10, imgWidth, imgHeight);
+                            yPosition += imgHeight + 20;
+                            if (index === rowsWithImages.length - 1) {
+                                addFooter(doc);
+                                doc.save('proforma.pdf');
+                            }
+                        };
+            
+                        reader.readAsDataURL(file);
+                    });
+                } else {
+                    addFooter(doc);
+                    doc.save('proforma.pdf');
+                }
+            };
+            
+            const addFooter = (doc) => {
+                const pageCount = doc.internal.getNumberOfPages();
+                doc.setFontSize(10);
+                const pageWidth = doc.internal.pageSize.getWidth();
+                const footerText = 'Desarrollado por Sfysh      whatsApp: +51929331606';
+                const textWidth = doc.getTextWidth(footerText);
+                const textX = (pageWidth - textWidth) / 2;
+            
+                const locationText = 'Arequipa - Perú';
+                const locationWidth = doc.getTextWidth(locationText);
+                const locationX = (pageWidth - locationWidth) / 2;
+            
+                const verticalSpacing = 3; 
+            
+                for (let i = 1; i <= pageCount; i++) {
+                    doc.setPage(i);
+                    doc.text(footerText, textX, doc.internal.pageSize.height - 10);
+                    doc.text(locationText, locationX, doc.internal.pageSize.height - verticalSpacing);
+                }
+            };
+            
+            
+            
+
+            const enviarWhatsApp = () => {
+                const storeName = document.getElementById('storeName').textContent;
+                const storePhone = document.getElementById('storePhone').textContent;
+                const storeAddress = document.getElementById('storeAddress').textContent;
+                const vendorName = document.getElementById('vendorName').textContent;
+                
+                const nombreCliente = document.getElementById('nombreCliente').value;
+                const numeroWhatsApp = document.getElementById('numeroWhatsApp').value;
+                
+                const sumaTotal = sumaTotalSpan.textContent;
+                const descuento = descuentoInput.value;
+                const precioFinal = precioFinalSpan.textContent;
+                
+                const items = Array.from(itemsTable.rows).map(row => {
+                    const cantidad = row.querySelector('.cantidad').value;
+                    const descripcion = row.querySelector('.descripcion').value;
+                    const precioUnitario = row.querySelector('.precioUnitario').value;
+                    const precioTotal = row.querySelector('.precioTotal').value;
+                    return `• ${cantidad} x ${descripcion} - S/ ${precioUnitario} (Total: S/ ${precioTotal})`;
+                });
+            
+                let mensaje = `${storeName}\nNúmero: ${storePhone}\nDirección: ${storeAddress}\nVendedor: ${vendorName}\n\n*Proforma de Cotización:*\n${items.join('\n')}\n--------------------\n`;
+            
+                if (parseFloat(descuento) > 0) {
+                    mensaje += `*Suma Total:* ~S/ ${sumaTotal}~\n*Descuento:* S/ ${descuento}\n*Precio Final:* S/ ${precioFinal}\n`;
+                } else {
+                    mensaje += `*Suma Total:* S/ ${sumaTotal}\n*Precio Final:* S/ ${precioFinal}\n`;
+                }
+            
+                mensaje += `\n\n\nSistema desarrollado por •Sfysh\n+51929331606`;
+            
+                const url = `https://api.whatsapp.com/send?phone=${numeroWhatsApp}&text=${encodeURIComponent(mensaje)}`;
+                window.open(url, '_blank');
+            };
+            
+
+            const reiniciarTabla = () => {
+                itemsTable.innerHTML = '';
+                actualizarTotales();
+            };
+
+            const cargarAjustes = () => {
+                const ajustes = JSON.parse(localStorage.getItem('proformaAjustes')) || {
+                    storeName: 'Sfysh',
+                    storePhone: '+51929331606',
+                    storeAddress: 'Arequipa',
+                    vendorName: 'Suarez',
+                    colorPortada: '#ff22f8',
+                    colorTablaCabecera: '#ba55d3'
+                };
+            
+                storeName.textContent = ajustes.storeName;
+                storePhone.textContent = ajustes.storePhone;
+                storeAddress.textContent = ajustes.storeAddress;
+                vendorName.textContent = ajustes.vendorName;
+            
+                document.getElementById('storeNameInput').value = ajustes.storeName;
+                document.getElementById('storePhoneInput').value = ajustes.storePhone;
+                document.getElementById('storeAddressInput').value = ajustes.storeAddress;
+                document.getElementById('vendorNameInput').value = ajustes.vendorName;
+                document.getElementById('colorPortada').value = ajustes.colorPortada;
+                document.getElementById('colorTablaCabecera').value = ajustes.colorTablaCabecera;
+            
+                actualizarColores(ajustes.colorPortada, ajustes.colorTablaCabecera, ajustes.colorTablaCuerpo);
+            };
+            
+            const guardarAjustes = (event) => {
+                event.preventDefault();
+            
+                const ajustes = {
+                    storeName: document.getElementById('storeNameInput').value,
+                    storePhone: document.getElementById('storePhoneInput').value,
+                    storeAddress: document.getElementById('storeAddressInput').value,
+                    vendorName: document.getElementById('vendorNameInput').value,
+                    colorPortada: document.getElementById('colorPortada').value,
+                    colorTablaCabecera: document.getElementById('colorTablaCabecera').value,
+                };
+            
+                localStorage.setItem('proformaAjustes', JSON.stringify(ajustes));
+                cargarAjustes();
+                $('#settingsModal').modal('hide');
+            };
+            
+            const actualizarColores = (colorPortada, colorTablaCabecera, colorTablaCuerpo) => {
+                document.getElementById('portada').style.background = `linear-gradient(to right, ${colorPortada}, #000000)`;
+                document.documentElement.style.setProperty('--color-tabla-cabecera', colorTablaCabecera);
+            };
+            
+
+            const reiniciarAjustes = () => {
+                localStorage.removeItem('proformaAjustes');
+                cargarAjustes();
+            };
+
+            agregarItemBtn.addEventListener('click', agregarItem);
+            descuentoInput.addEventListener('input', actualizarTotales);
+            document.getElementById('generarPDFBtn').addEventListener('click', generarPDF);
+            enviarWhatsAppBtn.addEventListener('click', enviarWhatsApp);
+            reiniciarTablaBtn.addEventListener('click', reiniciarTabla);
+            settingsForm.addEventListener('submit', guardarAjustes);
+            document.getElementById('resetSettings').addEventListener('click', reiniciarAjustes);
+
+            cargarAjustes();
+        });
+    </script>
+</body>
+</html>
